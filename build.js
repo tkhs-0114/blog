@@ -44,46 +44,58 @@ function createPostHTML(title, date, updateDate, content) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title} - My Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
 </head>
 <body>
-    <header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container">
-            <h1 class="site-title">My Blog</h1>
-            <nav class="site-nav">
-                <ul>
-                    <li><a href="../index.html">ホーム</a></li>
-                    <li><a href="#about">About</a></li>
+            <a class="navbar-brand fw-bold" href="../index.html">My Blog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">ホーム</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
                 </ul>
-            </nav>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="container">
+    <main class="container my-5">
         <article>
-            <header class="post-header">
-                <h1 class="post-title">${title}</h1>
-                <div class="post-meta">作成日: ${date}${
+            <header class="mb-4">
+                <h1 class="display-4 mb-3">${title}</h1>
+                <p class="text-muted">作成日: ${date}${
     updateDate ? ` / 更新日: ${updateDate}` : ""
-  }</div>
+  }</p>
             </header>
 
             <div class="post-content">
                 ${content}
             </div>
 
-            <a href="../index.html" class="back-link">← ホームに戻る</a>
+            <div class="mt-5">
+                <a href="../index.html" class="btn btn-outline-primary">← ホームに戻る</a>
+            </div>
         </article>
     </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2025 My Blog. All rights reserved.</p>
+    <footer class="bg-light border-top py-4 mt-5">
+        <div class="container text-center text-muted">
+            <p class="mb-0">&copy; 2025 My Blog. All rights reserved.</p>
         </div>
     </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>`;
 }
@@ -93,16 +105,20 @@ function createIndexHTML(posts) {
   const postCards = posts
     .map(
       (post) => `
-            <article class="post-card">
-                <div class="post-date">${post.date}</div>
-                <h2 class="post-title">
-                    <a href="posts/${post.slug}.html">${post.title}</a>
-                </h2>
-                <p class="post-excerpt">
-                    ${post.excerpt}
-                </p>
-                <a href="posts/${post.slug}.html" class="read-more">続きを読む →</a>
-            </article>`
+            <div class="col-md-12 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted small mb-2">${post.date}</p>
+                        <h2 class="card-title h4">
+                            <a href="posts/${post.slug}.html" class="text-decoration-none text-dark">${post.title}</a>
+                        </h2>
+                        <p class="card-text text-muted">
+                            ${post.excerpt}
+                        </p>
+                        <a href="posts/${post.slug}.html" class="btn btn-outline-primary btn-sm">続きを読む →</a>
+                    </div>
+                </div>
+            </div>`
     )
     .join("\n");
 
@@ -112,32 +128,47 @@ function createIndexHTML(posts) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container">
-            <h1 class="site-title">My Blog</h1>
-            <nav class="site-nav">
-                <ul>
-                    <li><a href="index.html">ホーム</a></li>
-                    <li><a href="#about">About</a></li>
+            <a class="navbar-brand fw-bold" href="index.html">My Blog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">ホーム</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
                 </ul>
-            </nav>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="container">
-        <section class="blog-posts">
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-5 mb-4">最新の記事</h1>
+                <div class="row">
 ${postCards}
-        </section>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2025 My Blog. All rights reserved.</p>
+    <footer class="bg-light border-top py-4 mt-5">
+        <div class="container text-center text-muted">
+            <p class="mb-0">&copy; 2025 My Blog. All rights reserved.</p>
         </div>
     </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>`;
 }
