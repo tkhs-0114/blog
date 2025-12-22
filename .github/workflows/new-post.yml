@@ -1,0 +1,71 @@
+name: Create New Post from Issue
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    # 投稿者制限：作成者が自分（GitHub ID）であることを確認
+    if: github.event.issue.user.login == 'tkhs-0114'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Parse Issue Body
+        id: parse
+        run: |
+          # Issueの本文から各項目を抽出するロジック
+          # ここでは「### 項目名」形式のテンプレートを想定しています
+          BODY="${{ github.event.issue.body }}"
+
+          TITLE=$(echo "$BODY" | sed -n '/### Title/,/###/p' | sed '1d;$d' | xargs)
+          EXCERPT=$(echo "$BODY" | sed -n '/### Excerpt/,/###/p' | sed '1d;$d' | xargs)
+          PUBLISHED=$(echo "$BODY" | sed -n '/### Published/,/###/p' | sed '1d;$d' | xargs)
+          CONTENT=$(echo "$BODY" | sed -n '/### Content/,$p' | sed '1d')
+
+          # ファイル名用のスラグ作成（タイトルを英数字とハイフンに変換）
+          SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+          DATE=$(date +'%Y/%m/%d')
+          DATE_SLUG=$(date +'%Y-%m-%d')
+          FILENAME="posts-md/${DATE_SLUG}-${SLUG}.md"
+
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "excerpt=$EXCERPT" >> $GITHUB_OUTPUT
+          echo "published=$PUBLISHED" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+          # コンテンツは一時ファイルに保存（改行維持のため）
+          echo "$CONTENT" > content_body.txt
+
+      - name: Create Markdown File
+        run: |
+          FILENAME="${{ steps.parse.outputs.filename }}"
+          {
+            echo "---"
+            echo "title: ${{ steps.parse.outputs.title }}"
+            echo "date: ${{ steps.parse.outputs.date }}"
+            echo "excerpt: ${{ steps.parse.outputs.excerpt }}"
+            echo "---"
+            echo ""
+            cat content_body.txt
+          } > $FILENAME
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "feat: add new post - ${{ steps.parse.outputs.title }}"
+          title: "新規記事投稿: ${{ steps.parse.outputs.title }}"
+          body: |
+            Issue #${{ github.event.issue.number }} から自動生成されました。
+            内容を確認してマージしてください。
+          branch: "new-post-${{ github.event.issue.number }}"
+          base: main
+          delete-branch: true
