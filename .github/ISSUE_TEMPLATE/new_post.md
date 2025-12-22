@@ -6,18 +6,10 @@ labels: ""
 assignees: ""
 ---
 
-### Title
+TITLE: ここにタイトルを入力
+EXCERPT: ここに要約を入力
+PUBLISHED: true
 
-ここにタイトルを入力
-
-### Excerpt
-
-ここに要約を入力
-
-### Published
-
-true
-
-### Content
+---
 
 ここに記事の本文を入力（マークダウン可、画像貼り付け可）

@@ -203,6 +203,12 @@ async function build() {
     // Front matterをパース
     const { data, content } = matter(fileContent);
 
+    // published が false の場合はスキップ
+    if (data.published === false) {
+      console.log(`⏭️  ${file} は非公開のためスキップしました`);
+      continue;
+    }
+
     // マークダウンをHTMLに変換
     const htmlContent = marked(content);
 

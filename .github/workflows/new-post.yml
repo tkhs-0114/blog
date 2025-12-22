@@ -22,13 +22,13 @@ jobs:
         id: parse
         run: |
           # Issueの本文から各項目を抽出するロジック
-          # ここでは「### 項目名」形式のテンプレートを想定しています
+          # 「TITLE: ...」形式のテンプレートを想定しています
           BODY="${{ github.event.issue.body }}"
 
-          TITLE=$(echo "$BODY" | sed -n '/### Title/,/###/p' | sed '1d;$d' | xargs)
-          EXCERPT=$(echo "$BODY" | sed -n '/### Excerpt/,/###/p' | sed '1d;$d' | xargs)
-          PUBLISHED=$(echo "$BODY" | sed -n '/### Published/,/###/p' | sed '1d;$d' | xargs)
-          CONTENT=$(echo "$BODY" | sed -n '/### Content/,$p' | sed '1d')
+          TITLE=$(echo "$BODY" | grep -oP '^TITLE: \K.*' || echo "Untitled")
+          EXCERPT=$(echo "$BODY" | grep -oP '^EXCERPT: \K.*' || echo "")
+          PUBLISHED=$(echo "$BODY" | grep -oP '^PUBLISHED: \K.*' || echo "true")
+          CONTENT=$(echo "$BODY" | sed -n '/^---$/,//p' | tail -n +2)
 
           # ファイル名用のスラグ作成（タイトルを英数字とハイフンに変換）
           SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
@@ -53,6 +53,7 @@ jobs:
             echo "title: ${{ steps.parse.outputs.title }}"
             echo "date: ${{ steps.parse.outputs.date }}"
             echo "excerpt: ${{ steps.parse.outputs.excerpt }}"
+            echo "published: ${{ steps.parse.outputs.published }}"
             echo "---"
             echo ""
             cat content_body.txt
