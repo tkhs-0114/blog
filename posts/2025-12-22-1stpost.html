@@ -87,7 +87,15 @@
             issueURL.searchParams.set('labels', 'edit');
             
             // Issueボディにファイル名とタイトルを事前入力
-            const body = `### Filename\n${filename}\n\n### Title\n${title}\n\n### Summary\nここに新しい要約を入力\n\n### Published\ntrue\n\n### Content\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\n`;
+            const body = `FILENAME: ${filename}
+TITLE: ${title}
+EXCERPT: ここに新しい要約を入力
+PUBLISHED: true
+
+---
+
+<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->
+`;
             issueURL.searchParams.set('body', body);
             
             window.open(issueURL.toString(), '_blank');

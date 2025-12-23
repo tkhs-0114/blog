@@ -128,7 +128,7 @@ function createPostHTML(title, date, updateDate, content, mdFilename) {
             issueURL.searchParams.set('labels', 'edit');
             
             // Issueボディにファイル名とタイトルを事前入力
-            const body = \`### Filename\\n\${filename}\\n\\n### Title\\n\${title}\\n\\n### Summary\\nここに新しい要約を入力\\n\\n### Published\\ntrue\\n\\n### Content\\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\\n\`;
+            const body = \`FILENAME: \${filename}\nTITLE: \${title}\nEXCERPT: ここに新しい要約を入力\nPUBLISHED: true\n\n---\n\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\n\`;
             issueURL.searchParams.set('body', body);
             
             window.open(issueURL.toString(), '_blank');

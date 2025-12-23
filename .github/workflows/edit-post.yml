@@ -26,25 +26,19 @@ jobs:
           ${{ github.event.issue.body }}
           EOF
 
-          # 各フィールドを抽出
-          # Filename
-          FILENAME=$(sed -n '/^### Filename/,/^### /{/^### Filename/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
+          # 各フィールドを抽出（新規作成と同じ形式）
+          FILENAME=$(echo "${{ github.event.issue.body }}" | grep -oP '^FILENAME: \K.*' | sed 's/<!-- .* -->//' | xargs)
+          TITLE=$(echo "${{ github.event.issue.body }}" | grep -oP '^TITLE: \K.*' | sed 's/<!-- .* -->//' | xargs)
+          SUMMARY=$(echo "${{ github.event.issue.body }}" | grep -oP '^EXCERPT: \K.*' || echo "")
+          PUBLISHED=$(echo "${{ github.event.issue.body }}" | grep -oP '^PUBLISHED: \K.*' || echo "true")
+
+          # Content (「---」以降の全て)
+          sed -n '/^---$/,//p' issue_body.txt | tail -n +2 > content_body.txt
+
           echo "filename=$FILENAME" >> $GITHUB_OUTPUT
-
-          # Title
-          TITLE=$(sed -n '/^### Title/,/^### /{/^### Title/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | sed '/<!-- /d' | head -1 | xargs)
           echo "title=$TITLE" >> $GITHUB_OUTPUT
-
-          # Summary
-          SUMMARY=$(sed -n '/^### Summary/,/^### /{/^### Summary/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
-
-          # Published
-          PUBLISHED=$(sed -n '/^### Published/,/^### /{/^### Published/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
           echo "published=$PUBLISHED" >> $GITHUB_OUTPUT
-
-          # Content (### Content 以降の全て)
-          sed -n '/^### Content/,$p' issue_body.txt | tail -n +2 | sed '/^<!-- /d' > content_body.txt
 
           echo "ファイル名: $FILENAME"
           echo "タイトル: $TITLE"
