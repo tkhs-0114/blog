@@ -2,7 +2,7 @@
 name: 新規記事投稿
 about: ブログの新しい記事を作成します
 title: "[New Post] "
-labels: ""
+labels: "new"
 assignees: ""
 ---
 

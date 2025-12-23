@@ -10,8 +10,8 @@ permissions:
 
 jobs:
   create-pr:
-    # 投稿者制限：作成者が自分（GitHub ID）であることを確認
-    if: github.event.issue.user.login == 'tkhs-0114'
+    # 投稿者制限：作成者が自分（GitHub ID）であることを確認 & newラベルがついている場合のみ実行
+    if: github.event.issue.user.login == 'tkhs-0114' && contains(github.event.issue.labels.*.name, 'new')
     runs-on: ubuntu-latest
 
     steps:

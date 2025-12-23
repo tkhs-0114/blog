@@ -115,8 +115,28 @@ function createPostHTML(title, date, updateDate, content, mdFilename) {
             }
             const mdContent = await response.text();
             
-            // クリップボードにコピー
-            await navigator.clipboard.writeText(mdContent);
+            // Front Matterをパースして本文とメタデータを分離
+            let content = mdContent;
+            let excerpt = 'ここに新しい要約を入力';
+            let published = 'true';
+            
+            // 簡易的なFront Matterパース
+            const fmMatch = mdContent.match(/^---\n([\\s\\S]*?)\n---\n([\\s\\S]*)$/);
+            if (fmMatch) {
+                const fmContent = fmMatch[1];
+                content = fmMatch[2].trim(); // 本文のみ抽出
+                
+                // excerpt抽出
+                const excerptMatch = fmContent.match(/^excerpt:\\s*(.*)$/m);
+                if (excerptMatch) excerpt = excerptMatch[1].trim();
+                
+                // published抽出
+                const publishedMatch = fmContent.match(/^published:\\s*(.*)$/m);
+                if (publishedMatch) published = publishedMatch[1].trim();
+            }
+            
+            // クリップボードにコピー（本文のみ）
+            await navigator.clipboard.writeText(content);
             
             // 通知表示
             alert('本文をコピーしました。Issueの Content セクションにペーストして編集してください。');
@@ -128,7 +148,7 @@ function createPostHTML(title, date, updateDate, content, mdFilename) {
             issueURL.searchParams.set('labels', 'edit');
             
             // Issueボディにファイル名とタイトルを事前入力
-            const body = \`FILENAME: \${filename}\nTITLE: \${title}\nEXCERPT: ここに新しい要約を入力\nPUBLISHED: true\n\n---\n\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\n\`;
+            const body = \`FILENAME: \${filename}\nTITLE: \${title}\nEXCERPT: \${excerpt}\nPUBLISHED: \${published}\n\n---\n\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\n\`;
             issueURL.searchParams.set('body', body);
             
             window.open(issueURL.toString(), '_blank');
