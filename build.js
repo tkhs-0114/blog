@@ -37,7 +37,7 @@ const POSTS_HTML_DIR = path.join(__dirname, "posts");
 const INDEX_FILE = path.join(__dirname, "index.html");
 
 // HTMLテンプレート（記事ページ用）
-function createPostHTML(title, date, updateDate, content) {
+function createPostHTML(title, date, updateDate, content, mdFilename) {
   return `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -77,6 +77,12 @@ function createPostHTML(title, date, updateDate, content) {
                 <p class="text-muted">作成日: ${date}${
     updateDate ? ` / 更新日: ${updateDate}` : ""
   }</p>
+                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="editPost('${mdFilename}', '${title.replace(
+    /'/g,
+    "\\'"
+  )}')">
+                    ✏️ 編集
+                </button>
             </header>
 
             <div class="post-content">
@@ -95,8 +101,42 @@ function createPostHTML(title, date, updateDate, content) {
         </div>
     </footer>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>    <script>
+    async function editPost(filename, title) {
+        const GITHUB_USER = 'tkhs-0114';
+        const GITHUB_REPO = 'blog';
+        const RAW_URL = \`https://raw.githubusercontent.com/\${GITHUB_USER}/\${GITHUB_REPO}/main/posts-md/\${filename}\`;
+        
+        try {
+            // マークダウンファイルを取得
+            const response = await fetch(RAW_URL);
+            if (!response.ok) {
+                throw new Error('ファイルの取得に失敗しました');
+            }
+            const mdContent = await response.text();
+            
+            // クリップボードにコピー
+            await navigator.clipboard.writeText(mdContent);
+            
+            // 通知表示
+            alert('本文をコピーしました。Issueの Content セクションにペーストして編集してください。');
+            
+            // GitHub Issue作成画面へリダイレクト
+            const issueURL = new URL(\`https://github.com/\${GITHUB_USER}/\${GITHUB_REPO}/issues/new\`);
+            issueURL.searchParams.set('template', 'edit_post.md');
+            issueURL.searchParams.set('title', \`[Edit] \${title}\`);
+            issueURL.searchParams.set('labels', 'edit');
+            
+            // Issueボディにファイル名とタイトルを事前入力
+            const body = \`### Filename\\n\${filename}\\n\\n### Title\\n\${title}\\n\\n### Summary\\nここに新しい要約を入力\\n\\n### Published\\ntrue\\n\\n### Content\\n<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->\\n\`;
+            issueURL.searchParams.set('body', body);
+            
+            window.open(issueURL.toString(), '_blank');
+        } catch (error) {
+            alert('エラーが発生しました: ' + error.message);
+        }
+    }
+    </script></body>
 </html>`;
 }
 
@@ -218,10 +258,14 @@ async function build() {
     // 日付のフォーマット
     const formattedDate = formatDate(data.date);
     const buildDate = getJSTDate();
-    // 作成日とビルド日が異なる場合、またはupdate項目が明示的に指定されている場合は更新日を表示
+    // 作成日とビルド日が異なる場合、またはupdate/updated項目が明示的に指定されている場合は更新日を表示
     const updateDate =
-      data.update || (formattedDate !== buildDate && formattedDate)
-        ? buildDate
+      data.updated ||
+      data.update ||
+      (formattedDate !== buildDate && formattedDate)
+        ? data.updated
+          ? formatDate(data.updated)
+          : buildDate
         : null;
 
     // 記事情報を保存
@@ -238,7 +282,8 @@ async function build() {
       data.title,
       formattedDate,
       updateDate,
-      htmlContent
+      htmlContent,
+      file // マークダウンファイル名を渡す
     );
     const outputPath = path.join(POSTS_HTML_DIR, `${slug}.html`);
     fs.writeFileSync(outputPath, postHTML);

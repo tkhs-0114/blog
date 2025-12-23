@@ -1,0 +1,116 @@
+name: Edit Post from Issue
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  edit-post:
+    # 投稿者制限 & 編集ラベルがついている場合のみ実行
+    if: github.event.issue.user.login == 'tkhs-0114' && contains(github.event.issue.labels.*.name, 'edit')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Parse Issue Body
+        id: parse
+        run: |
+          # Issueの本文を一時ファイルに保存
+          cat << 'EOF' > issue_body.txt
+          ${{ github.event.issue.body }}
+          EOF
+
+          # 各フィールドを抽出
+          # Filename
+          FILENAME=$(sed -n '/^### Filename/,/^### /{/^### Filename/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+
+          # Title
+          TITLE=$(sed -n '/^### Title/,/^### /{/^### Title/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | sed '/<!-- /d' | head -1 | xargs)
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+
+          # Summary
+          SUMMARY=$(sed -n '/^### Summary/,/^### /{/^### Summary/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+          # Published
+          PUBLISHED=$(sed -n '/^### Published/,/^### /{/^### Published/d;/^### /d;p;}' issue_body.txt | sed '/^$/d' | head -1 | xargs)
+          echo "published=$PUBLISHED" >> $GITHUB_OUTPUT
+
+          # Content (### Content 以降の全て)
+          sed -n '/^### Content/,$p' issue_body.txt | tail -n +2 | sed '/^<!-- /d' > content_body.txt
+
+          echo "ファイル名: $FILENAME"
+          echo "タイトル: $TITLE"
+          echo "サマリー: $SUMMARY"
+          echo "公開: $PUBLISHED"
+
+      - name: Check if file exists and get original date
+        id: original
+        run: |
+          FILENAME="${{ steps.parse.outputs.filename }}"
+          FILEPATH="posts-md/$FILENAME"
+
+          if [ ! -f "$FILEPATH" ]; then
+            echo "❌ ファイルが見つかりません: $FILEPATH"
+            exit 1
+          fi
+
+          # 既存ファイルから元のdateを抽出
+          ORIGINAL_DATE=$(grep -oP '^date: \K.*' "$FILEPATH" || echo "")
+          echo "original_date=$ORIGINAL_DATE" >> $GITHUB_OUTPUT
+          echo "filepath=$FILEPATH" >> $GITHUB_OUTPUT
+          echo "元の作成日: $ORIGINAL_DATE"
+
+      - name: Update Markdown File
+        run: |
+          FILEPATH="${{ steps.original.outputs.filepath }}"
+          ORIGINAL_DATE="${{ steps.original.outputs.original_date }}"
+          UPDATE_DATE=$(date +'%Y/%m/%d')
+
+          {
+            echo "---"
+            echo "title: ${{ steps.parse.outputs.title }}"
+            echo "date: $ORIGINAL_DATE"
+            echo "updated: $UPDATE_DATE"
+            echo "excerpt: ${{ steps.parse.outputs.summary }}"
+            echo "published: ${{ steps.parse.outputs.published }}"
+            echo "---"
+            echo ""
+            cat content_body.txt
+          } > "$FILEPATH"
+
+          rm -f content_body.txt issue_body.txt
+          echo "✅ $FILEPATH を更新しました"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build HTML from Markdown
+        run: npm run build
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "edit: update post - ${{ steps.parse.outputs.title }}"
+          title: "記事編集: ${{ steps.parse.outputs.title }}"
+          body: |
+            Issue #${{ github.event.issue.number }} から記事を編集しました。
+
+            **編集対象:** `${{ steps.parse.outputs.filename }}`
+
+            内容を確認してマージしてください。
+          branch: "edit-post-${{ github.event.issue.number }}"
+          base: main
+          delete-branch: true
