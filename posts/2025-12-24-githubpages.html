@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHubPagesで個人ブログを作成♪ - My Blog</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="../index.html"
+          >tkhs-0114's Blog</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link " href="../index.html"
+                >ホーム</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link "
+                href="../posts.html"
+                >記事一覧</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link "
+                href="../about.html"
+                >About</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>
+
+
+    <main class="container my-5">
+        <article>
+            <header class="mb-4">
+                <h1 class="display-4 mb-3">GitHubPagesで個人ブログを作成♪</h1>
+                <p class="text-muted">作成日: 2025/12/24</p>
+            </header>
+
+            <div class="post-content">
+                <p>この投稿は<strong>HxSコンピューター部 Advent Calendar 2025</strong>の23日目の記事です♬</p>
+<h2>個人ブログを作りたい🔥</h2>
+<p>Qiitaとかって気軽に書いた記事でも、♡付いてモチベにはなるけど、あまりにも薄い内容だと投稿するのは気が引けちゃう...<br>だったら個人ブログを作って、うっすい内容の記事を投稿しよう！ってことでこのブログができました。</p>
+<h2>さて、どこで公開しましょうか？</h2>
+<p>ここは無料！簡単！定期的なアクセスの必要無し！のGitHubPagesが最強なのですが<br>GitHubPagesは静的なサイトしか公開できません<br>→つまり、投稿のたびにエディタを開く、HTMLを書く、Commit、GitHub上にPush、なんかの面倒臭い作業が必要になります</p>
+<h2>3日坊主でも続けられる投稿フロー</h2>
+<ol>
+<li>まずはHTMLを書く手間を省きましょう。<br>-&gt;これは適当にマークダウンからHTMLにビルドできるJavaScriptを書きました。</li>
+<li>次にWebブラウザからマークダウンを書けるようにしましょう<br>-&gt; これにはGitHubのISSUEを活用します。ISSUEが投稿されるをトリガーにGitHubActionsを起動させ、ISSUEの内容からマークダウン作成&amp;ビルドまでを行ってPRを送信します</li>
+<li>PRのマージをトリガーにデプロイを実施</li>
+</ol>
+<img width=880 height=563 alt=Image src=https://github.com/user-attachments/assets/3f01fe77-7f7e-4471-a9e2-9320db9ab21d />
+
+<h2>最強のブログ環境の完成！！</h2>
+<p>これで超気軽に記事の投稿ができるGitHubPagesブログの完成です！</p>
+
+            </div>
+
+            <div class="mt-5">
+                <a href="../index.html" class="btn btn-outline-primary">← ホームに戻る</a>
+                <button class="btn btn-outline-secondary mx-2" onclick="editPost('2025-12-24-githubpages.md', 'GitHubPagesで個人ブログを作成♪')">
+                    ✏️ 編集
+                </button>
+            </div>
+        </article>
+    </main>
+    <footer class="bg-light border-top mt-5 py-4">
+        <div class="text-center">
+            <p class="text-muted mb-0">&copy; 2025 tkhs-0114. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    async function editPost(filename, title) {
+        const GITHUB_USER = 'tkhs-0114';
+        const GITHUB_REPO = 'blog';
+        const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/posts-md/${filename}`;
+        
+        try {
+            // マークダウンファイルを取得
+            const response = await fetch(RAW_URL);
+            if (!response.ok) {
+                throw new Error('ファイルの取得に失敗しました');
+            }
+            const mdContent = await response.text();
+            
+            // Front Matterをパースして本文とメタデータを分離
+            let content = mdContent;
+            let excerpt = 'ここに新しい要約を入力';
+            let published = 'true';
+            
+            // 簡易的なFront Matterパース
+            const fmMatch = mdContent.match(/^---
+([\s\S]*?)
+---
+([\s\S]*)$/);
+            if (fmMatch) {
+                const fmContent = fmMatch[1];
+                content = fmMatch[2].trim(); // 本文のみ抽出
+                
+                // excerpt抽出
+                const excerptMatch = fmContent.match(/^excerpt:\s*(.*)$/m);
+                if (excerptMatch) excerpt = excerptMatch[1].trim();
+                
+                // published抽出
+                const publishedMatch = fmContent.match(/^published:\s*(.*)$/m);
+                if (publishedMatch) published = publishedMatch[1].trim();
+            }
+            
+            // クリップボードにコピー（本文のみ）
+            await navigator.clipboard.writeText(content);
+            
+            // 通知表示
+            alert('本文をコピーしました。Issueの Content セクションにペーストして編集してください。');
+            
+            // GitHub Issue作成画面へリダイレクト
+            const issueURL = new URL(`https://github.com/${GITHUB_USER}/${GITHUB_REPO}/issues/new`);
+            issueURL.searchParams.set('template', 'edit_post.md');
+            issueURL.searchParams.set('title', `[Edit] ${title}`);
+            issueURL.searchParams.set('labels', 'edit');
+            
+            // Issueボディにファイル名とタイトルを事前入力
+            const body = `FILENAME: ${filename}
+TITLE: ${title}
+EXCERPT: ${excerpt}
+PUBLISHED: ${published}
+
+---
+
+<!-- ここにクリップボードの中身をペーストして、修正を加えてください -->
+`;
+            issueURL.searchParams.set('body', body);
+            
+            window.open(issueURL.toString(), '_blank');
+        } catch (error) {
+            alert('エラーが発生しました: ' + error.message);
+        }
+    }
+    </script>
+</body>
+</html>
