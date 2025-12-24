@@ -152,12 +152,6 @@ function createPostHTML(title, date, updateDate, content, mdFilename) {
                 <p class="text-muted">作成日: ${date}${
     updateDate ? ` / 更新日: ${updateDate}` : ""
   }</p>
-                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="editPost('${mdFilename}', '${title.replace(
-    /'/g,
-    "\\'"
-  )}')">
-                    ✏️ 編集
-                </button>
             </header>
 
             <div class="post-content">
@@ -166,6 +160,12 @@ function createPostHTML(title, date, updateDate, content, mdFilename) {
 
             <div class="mt-5">
                 <a href="../index.html" class="btn btn-outline-primary">← ホームに戻る</a>
+                <button class="btn btn-outline-secondary mx-2" onclick="editPost('${mdFilename}', '${title.replace(
+    /'/g,
+    "\\'"
+  )}')">
+                    ✏️ 編集
+                </button>
             </div>
         </article>
     </main>`;
