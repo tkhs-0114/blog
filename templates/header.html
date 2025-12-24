@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{TITLE}} - My Blog</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{CSS_PATH}}css/style.css" />
+    {{HEAD_EXTRA}}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ROOT_PATH}}index.html"
+          >My Blog</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link {{HOME_ACTIVE}}" href="{{ROOT_PATH}}index.html"
+                >ホーム</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {{POSTS_ACTIVE}}"
+                href="{{ROOT_PATH}}posts.html"
+                >記事一覧</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {{ABOUT_ACTIVE}}"
+                href="{{ROOT_PATH}}about.html"
+                >About</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>

@@ -7,13 +7,41 @@ GitHub Pages で公開する静的ブログです。マークダウンで記事�
 ```
 blog/
 ├── .github/workflows/  # GitHub Actions設定
+├── templates/         # HTMLテンプレート（ヘッダー・フッター等）
 ├── posts-md/          # マークダウンソース（ここに記事を書く）
 ├── posts/             # 生成されたHTML（自動生成）
 ├── css/               # スタイルシート
 ├── index.html         # トップページ（自動生成）
+├── about.html         # Aboutページ（自動生成）
+├── posts.html         # 記事一覧ページ（自動生成）
 ├── build.js           # ビルドスクリプト
 └── package.json       # 依存関係
 ```
+
+## テンプレートシステム
+
+このブログは、ヘッダーやフッターなどの共通部分を `templates/` ディレクトリに分割して管理しています。
+
+### テンプレートファイル
+
+- `templates/header.html` - 全ページ共通のヘッダー（ナビゲーション含む）
+- `templates/footer.html` - 全ページ共通のフッター
+- `templates/home-content.html` - ホームページのコンテンツ部分
+- `templates/about-content.html` - About ページのコンテンツ部分
+- `templates/posts-list-content.html` - 記事一覧ページのコンテンツ部分
+
+### テンプレートのカスタマイズ
+
+1. `templates/` 内のファイルを編集
+2. `npm run build` で HTML を再生成
+3. 変更を確認
+
+テンプレート内で使える変数：
+
+- `{{TITLE}}` - ページタイトル
+- `{{ROOT_PATH}}` - ルートパスへのパス
+- `{{CSS_PATH}}` - CSS ファイルへのパス
+- `{{HOME_ACTIVE}}`, `{{POSTS_ACTIVE}}`, `{{ABOUT_ACTIVE}}` - アクティブなナビゲーション項目
 
 ## セットアップ
 

@@ -1,0 +1,30 @@
+<!-- ヒーローセクション -->
+<div class="bg-light py-5 mb-5 border-bottom">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-4 fw-bold mb-3">Welcome to My Blog</h1>
+        <p class="lead text-muted mb-4">
+          技術のこと、日常のことを気ままに書いています。
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <a href="about.html" class="btn btn-primary btn-lg px-4 gap-3"
+            >About Me</a
+          >
+          <a href="posts.html" class="btn btn-outline-secondary btn-lg px-4"
+            >記事一覧を見る</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <h2 class="mb-4">最新の記事</h2>
+      <div id="recent-posts">{{RECENT_POSTS}}</div>
+    </div>
+  </div>
+</main>
